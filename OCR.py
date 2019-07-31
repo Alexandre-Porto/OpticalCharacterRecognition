@@ -5,42 +5,6 @@ Created on Wed Jul 31 14:21:34 2019
 @author: Porto
 """
 
-import sys
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import tensorflow as tf
-import cv2
-
-sys.path.append('../src')
-from ocr.normalization import word_normalization, letter_normalization
-from ocr import page, words, characters
-from ocr.helpers import implt, resize
-from ocr.tfhelpers import Model
-from ocr.datahelpers import idx2char
-
-#%matplotlib inline
-plt.rcParams['figure.figsize'] = (15.0, 10.0)
-
-IMG = '../data/pages/test4.jpg'    # 1, 2, 3
-LANG = 'en'
-# You can use only one of these two
-# You HABE TO train the CTC model by yourself using word_classifier_CTC.ipynb
-MODEL_LOC_CHARS = '../models/char-clas/' + LANG + '/CharClassifier'
-MODEL_LOC_CTC = '../models/word-clas/CTC/Classifier1'
-
-CHARACTER_MODEL = Model(MODEL_LOC_CHARS)
-CTC_MODEL = Model(MODEL_LOC_CTC, 'word_prediction')
-
-image = cv2.cvtColor(cv2.imread(IMG), cv2.COLOR_BGR2RGB)
-implt(image)
-
-# Crop image and get bounding boxes
-crop = page.detection(image)
-implt(crop)
-boxes = words.detection(crop)
-lines = words.sort_words(boxes)
-
 def recognise(img):
     """Recognition using character model"""
     # Pre-processing the word
@@ -101,6 +65,42 @@ def recognise_2(img):
     return word
    
 def main():
+    
+    import sys
+    import numpy as np
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import tensorflow as tf
+    import cv2
+    
+    sys.path.append('../src')
+    from ocr.normalization import word_normalization, letter_normalization
+    from ocr import page, words, characters
+    from ocr.helpers import implt, resize
+    from ocr.tfhelpers import Model
+    from ocr.datahelpers import idx2char
+    
+    #%matplotlib inline
+    plt.rcParams['figure.figsize'] = (15.0, 10.0)
+    
+    IMG = '../data/pages/test4.jpg'    # 1, 2, 3
+    LANG = 'en'
+    # You can use only one of these two
+    # You HABE TO train the CTC model by yourself using word_classifier_CTC.ipynb
+    MODEL_LOC_CHARS = '../models/char-clas/' + LANG + '/CharClassifier'
+    MODEL_LOC_CTC = '../models/word-clas/CTC/Classifier1'
+    
+    CHARACTER_MODEL = Model(MODEL_LOC_CHARS)
+    CTC_MODEL = Model(MODEL_LOC_CTC, 'word_prediction')
+    
+    image = cv2.cvtColor(cv2.imread(IMG), cv2.COLOR_BGR2RGB)
+    implt(image)
+    
+    # Crop image and get bounding boxes
+    crop = page.detection(image)
+    implt(crop)
+    boxes = words.detection(crop)
+    lines = words.sort_words(boxes)
     
     implt(crop)
     for line in lines:
