@@ -20,17 +20,15 @@ import math
 import re
 
 LANG = 'en'
-# You can use only one of these two
-# You HABE TO train the CTC model by yourself using word_classifier_CTC.ipynb
-MODEL_LOC_CHARS = '../models/char-clas/' + LANG + '/CharClassifier'
-CHARACTER_MODEL = Model(MODEL_LOC_CHARS)
+MODEL_LOC_CTC = '../models/word-clas/CTC/Classifier1'
+CTC_MODEL = Model(MODEL_LOC_CTC, 'word_prediction')
 
 
-class HandwritingCharRecog(opencvfunction.OpenCvGuiFunc):
+class HandwritingCTC(opencvfunction.OpenCvGuiFunc):
     variables = opencvfunction.OpenCvGuiFunc.variables.copy()
 
     def __init__(self):
-        super(HandwritingCharRecog,self).__init__()
+        super(HandwritingCTC,self).__init__()
 
     def recognise_char_sep_model(self, img):
         """Recognition using character model"""
@@ -93,30 +91,31 @@ class HandwritingCharRecog(opencvfunction.OpenCvGuiFunc):
 
 
     def apply_with_source_info(self, im, source_info):
-
+        
+        boxes = self.get_last_info('bbxy')
+        print(boxes)
+        
         lines = self.get_last_info('lines')
         self.read_list = []
         for line in lines:
-            read_word = " ".join([self.recognise_char_sep_model(im[y1:y2, x1:x2]) for (x1, y1, x2, y2) in line])
+            read_word = " ".join([self.recognise_ctc(im[y1:y2, x1:x2]) for (x1, y1, x2, y2) in line])
             self.read_list.append(re.sub("[^\w]", " ",  read_word).split())
-            print(read_word)           
-
+            print(read_word)
+        
         return im
 
     def visual_feedback(self, im):
-        
         font = cv2.FONT_HERSHEY_SIMPLEX
         boxes = self.get_last_info('bbxy')
         lines = self.get_last_info('lines')
         
         for line in lines:
             for box in line:
-                cv2.rectangle(im,(box[0], box[1]),(box[2], box[3]),(0,255,0),3)        
+                cv2.rectangle(im,(box[0], box[1]),(box[2], box[3]),(0,255,0),3)
         
         for line in range(len(lines)):
             for read_word in range(len(lines[line])):
                 cvtext.put_text_bbxy(im, self.read_list[line][read_word], lines[line][read_word], color='green', thickness=3, fit=True)
         
         return im
-
 

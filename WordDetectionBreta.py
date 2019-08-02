@@ -47,6 +47,8 @@ class WordDetectionBreta(opencvfunction.OpenCvGuiFunc):
         
         boxes = words.detection(im)
         lines = words.sort_words(boxes)
+        print('lines')
+        print(lines)
         
         
         self.add_info('bbxy', boxes)       
